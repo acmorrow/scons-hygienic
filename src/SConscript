@@ -1,0 +1,42 @@
+Import('env')
+
+env.AppendUnique(
+    LIBPATH='$PREFIX/lib'
+)
+
+baseLib = env.SharedLibrary(
+    target='base',
+    source=[
+        'base.cpp',
+    ],
+)
+
+installBaseLib = env.Install('$PREFIX/lib', baseLib)
+env.Alias('install-libs', installBaseLib)
+
+derivedLib = env.SharedLibrary(
+    target='derived',
+    source=[
+        'derived.cpp',
+    ],
+    LIBS=[
+        'base',
+    ]
+)
+
+installDerivedLib = env.Install('$PREFIX/lib', derivedLib)
+env.Alias('install-libs', installDerivedLib)
+
+main = env.Program(
+    target='main',
+    source=[
+        'main.cpp',
+    ],
+    LIBS=[
+        'base',
+        'derived',
+    ]
+)
+
+installMain = env.Install('$PREFIX/bin', main)
+env.Alias('install-bins', installMain)
