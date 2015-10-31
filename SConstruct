@@ -26,4 +26,4 @@ env.AppendUnique(CXXFLAGS=['-std=c++11'])
 env.SConscript('src/SConscript', variant_dir=env.subst('$BUILD_DIR'), exports={ 'env' : env })
 
 env.Alias('install', ['install-libs', 'install-bins'])
-
+env.Default('install')
