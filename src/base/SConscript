@@ -1,0 +1,11 @@
+Import('env')
+
+baseLib = env.SharedLibrary(
+    target='base',
+    source=[
+        'base.cpp',
+    ],
+)
+
+installBaseLib = env.Install('$PREFIX/lib', baseLib)
+env.Alias('install-libs', installBaseLib)

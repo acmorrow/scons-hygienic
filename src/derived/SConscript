@@ -1,0 +1,14 @@
+Import('env')
+
+derivedLib = env.SharedLibrary(
+    target='derived',
+    source=[
+        'derived.cpp',
+    ],
+    LIBS=[
+        'base',
+    ]
+)
+
+installDerivedLib = env.Install('$PREFIX/lib', derivedLib)
+env.Alias('install-libs', installDerivedLib)

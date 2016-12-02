@@ -4,28 +4,15 @@ env.AppendUnique(
     LIBPATH='$PREFIX/lib'
 )
 
-baseLib = env.SharedLibrary(
-    target='base',
-    source=[
-        'base.cpp',
-    ],
-)
-
-installBaseLib = env.Install('$PREFIX/lib', baseLib)
-env.Alias('install-libs', installBaseLib)
-
-derivedLib = env.SharedLibrary(
-    target='derived',
-    source=[
-        'derived.cpp',
-    ],
-    LIBS=[
+env.SConscript(
+    dirs=[
         'base',
+        'derived',
     ]
+    exports={
+        'env' : env
+    }
 )
-
-installDerivedLib = env.Install('$PREFIX/lib', derivedLib)
-env.Alias('install-libs', installDerivedLib)
 
 main = env.Program(
     target='main',
