@@ -3,4 +3,3 @@
 void Base::doIt() {
     return _doIt();
 }
-

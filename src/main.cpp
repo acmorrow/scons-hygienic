@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include "derived.h"
+#include "derived/derived.h"
 
 int main() {
     Derived().doIt();

@@ -8,10 +8,10 @@ env.SConscript(
     dirs=[
         'base',
         'derived',
-    ]
+    ],
     exports={
-        'env' : env
-    }
+        'env' : env,
+    },
 )
 
 main = env.Program(
