@@ -7,7 +7,10 @@ derivedLib = env.SharedLibrary(
     ],
     LIBS=[
         'base',
-    ]
+    ],
+    CPPDEFINES=[
+         "HYGENIC_DEMO_API_LIBDERIVED",
+    ],
 )
 
 installDerivedLib = env.Install('$PREFIX/lib', derivedLib)

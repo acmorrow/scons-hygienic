@@ -23,10 +23,19 @@ env_vars.Add('CXX')
 env_vars.Add('CCFLAGS')
 env_vars.Add('LINKFLAGS')
 
-env = Environment(variables=env_vars)
+env = Environment(
+    variables=env_vars,
+)
 env.CacheDir(env.Dir(env.subst('$BUILD_DIR/scons/cache')).abspath)
 
-env.AppendUnique(CXXFLAGS=['-std=c++11'])
+env.AppendUnique(
+    CPPPATH="#/src",
+    CXXFLAGS=[
+        '-std=c++11',
+        '-fvisibility=hidden',
+        '-fvisibility-inlines-hidden',
+    ]
+)
 
 env.SConscript(
     dirs=[

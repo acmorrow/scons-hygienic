@@ -5,6 +5,9 @@ baseLib = env.SharedLibrary(
     source=[
         'base.cpp',
     ],
+    CPPDEFINES=[
+        "HYGENIC_DEMO_API_LIBBASE",
+    ],
 )
 
 installBaseLib = env.Install('$PREFIX/lib', baseLib)

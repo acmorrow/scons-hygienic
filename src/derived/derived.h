@@ -1,8 +1,13 @@
 #pragma once
 
-#include "../base/base.h"
+#include "base/base.h"
 
-class Derived : public Base {
+#include "config.h"
+
+class HYGENIC_DEMO_API(LIBDERIVED) Derived : public Base {
+public:
+    Derived();
+
 private:
-    void _doIt() final;
+    HYGENIC_DEMO_PRIVATE void _doIt() final;
 };

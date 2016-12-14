@@ -1,6 +1,8 @@
 #pragma once
 
-class Base {
+#include "config.h"
+
+class HYGENIC_DEMO_API(LIBBASE) Base {
 public:
 
     Base(Base&) = delete;
@@ -11,8 +13,8 @@ public:
     void doIt();
 
 protected:
-    Base() = default;
+    Base();
 
 private:
-    virtual void _doIt() = 0;
+    HYGENIC_DEMO_PRIVATE virtual void _doIt() = 0;
 };
