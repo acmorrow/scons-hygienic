@@ -19,5 +19,5 @@ derivedLib = env.SharedLibrary(
     ],
 )
 
-installDerivedLib = env.Install('$PREFIX/lib', derivedLib)
+installDerivedLib = env.Install('$PREFIX/lib/derived', derivedLib)
 env.Alias('install-libs', installDerivedLib)

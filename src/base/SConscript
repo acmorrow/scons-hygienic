@@ -16,5 +16,5 @@ baseLib = env.SharedLibrary(
     ],
 )
 
-installBaseLib = env.Install('$PREFIX/lib', baseLib)
+installBaseLib = env.Install('$PREFIX/lib/base', baseLib)
 env.Alias('install-libs', installBaseLib)

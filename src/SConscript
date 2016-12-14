@@ -48,8 +48,8 @@ main = env.Program(
         'main.cpp',
     ],
     LIBS=[
-        'base',
-        'derived',
+        'base/base',
+        'derived/derived',
     ]
 )
 
