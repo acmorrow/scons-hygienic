@@ -25,6 +25,8 @@ env = Environment(
     variables=env_vars,
 )
 
+env.Tool('auto_install_binaries')
+
 sconsDir = env.Dir(env.subst('$BUILD_DIR/scons'))
 env.SConsignFile(str(sconsDir.File('signatures')))
 env.CacheDir(str(sconsDir.Dir('cache')))
@@ -39,7 +41,7 @@ env.SConscript(
     }
 )
 
-env.Alias('install', ['install-libs', 'install-bins', 'install-dev'])
+env.Alias('install', ['install-dev', 'install-runtime'])
 env.Default('install')
 
 env.NoCache(FindInstalledFiles())

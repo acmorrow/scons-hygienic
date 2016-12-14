@@ -57,6 +57,3 @@ main = env.Program(
         'derived',
     ]
 )
-
-installMain = env.Install('$PREFIX/bin', main)
-env.Alias('install-bins', installMain)

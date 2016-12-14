@@ -15,6 +15,3 @@ baseLib = env.SharedLibrary(
         "HYGENIC_DEMO_API_LIBBASE",
     ],
 )
-
-installBaseLib = env.Install('$PREFIX/lib', baseLib)
-env.Alias('install-libs', installBaseLib)
