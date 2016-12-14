@@ -1,8 +1,31 @@
 Import('env')
 
+env = env.Clone()
+
 env.AppendUnique(
-    LIBPATH='$PREFIX/lib'
+    LIBPATH=['$PREFIX/lib'],
+    CPPPATH=['#/src'],
 )
+
+if env['PLATFORM'] == 'posix':
+    print("ACM")
+    env.AppendUnique(
+        RPATH=[env.Literal('\\$$ORIGIN/../lib')],
+        LINKFLAGS=['-Wl,-z,origin'],
+    )
+elif env['PLATFORM'] == 'darwin':
+    env.AppendUnique(
+        LINKFLAGS=['-Wl,-rpath,@loader_path/../lib'],
+    )
+
+if not 'MSVC_VERSION' in env:
+    env.AppendUnique(
+        CXXFLAGS=[
+            '-std=c++11',
+            '-fvisibility=hidden',
+            '-fvisibility-inlines-hidden',
+        ],
+    )
 
 env.SConscript(
     dirs=[

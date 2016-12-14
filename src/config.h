@@ -1,7 +1,9 @@
 #pragma once
 
+#if defined(_MSC_VER)
 #include <boost/preprocessor/control/if.hpp>
 #include <boost/vmd/is_number.hpp>
+#endif
 
 #if defined(_MSC_VER)
 #define VIS_PUBLIC() __declspec(dllexport)
