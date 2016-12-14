@@ -18,7 +18,7 @@ def generate(env):
         }
 
         for t in target:
-            tsuf = t.get_suffix()
+            tsuf = env.Entry(t).get_suffix()
             auto_install_location = suffix_map.get(tsuf)
             if auto_install_location:
                 install = env.Install(auto_install_location[0], t)
