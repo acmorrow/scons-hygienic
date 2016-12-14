@@ -22,7 +22,10 @@ env_vars.Add('CXXFLAGS')
 env = Environment(
     variables=env_vars,
 )
-env.CacheDir(env.Dir(env.subst('$BUILD_DIR/scons/cache')).abspath)
+
+sconsDir = env.Dir(env.subst('$BUILD_DIR/scons'))
+env.SConsignFile(str(sconsDir.File('signatures')))
+env.CacheDir(str(sconsDir.Dir('cache')))
 
 env.SConscript(
     dirs=[
