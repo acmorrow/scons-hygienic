@@ -8,7 +8,6 @@ env.AppendUnique(
 )
 
 if env['PLATFORM'] == 'posix':
-    print("ACM")
     env.AppendUnique(
         RPATH=[env.Literal('\\$$ORIGIN/../lib')],
         LINKFLAGS=['-Wl,-z,origin'],
