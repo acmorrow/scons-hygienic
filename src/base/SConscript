@@ -1,5 +1,11 @@
 Import('env')
 
+baseHeaders = env.File([
+    'base.h',
+])
+installBaseHeaders = env.Install('$PREFIX/include/base', baseHeaders)
+env.Alias('install-dev', installBaseHeaders)
+
 baseLib = env.SharedLibrary(
     target='base',
     source=[

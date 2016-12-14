@@ -36,6 +36,12 @@ env.SConscript(
     },
 )
 
+configHeaders = env.File([
+    'config.h'
+])
+installConfigHeaders = env.Install('$PREFIX/include', configHeaders)
+env.Alias('install-dev', installConfigHeaders)
+
 main = env.Program(
     target='main',
     source=[

@@ -37,7 +37,7 @@ env.SConscript(
     }
 )
 
-env.Alias('install', ['install-libs', 'install-bins'])
+env.Alias('install', ['install-libs', 'install-bins', 'install-dev'])
 env.Default('install')
 
 env.NoCache(FindInstalledFiles())
