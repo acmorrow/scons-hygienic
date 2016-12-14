@@ -18,6 +18,8 @@ env_vars.Add('CC')
 env_vars.Add('CXX')
 env_vars.Add('CCFLAGS')
 env_vars.Add('CXXFLAGS')
+env_vars.Add('CPPPATH')
+env_vars.Add('LIBPATH')
 
 env = Environment(
     variables=env_vars,
