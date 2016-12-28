@@ -1,12 +1,18 @@
 Import('env')
 
-baseHeaders = env.File([
-    'base.h',
-])
-installBaseHeaders = env.Install('$PREFIX/include/base', baseHeaders)
-env.Alias('install-dev', installBaseHeaders)
+env = env.Clone()
 
-baseLib = env.SharedLibrary(
+env.Install(
+    target='include/base',
+    source=[
+        'base.h',
+    ],
+    INSTALL_TAGS=[
+        'dev'
+    ],
+)
+
+env.SharedLibrary(
     target='base',
     source=[
         'base.cpp',

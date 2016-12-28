@@ -1,12 +1,18 @@
 Import('env')
 
-derivedHeaders = env.File([
-    'derived.h',
-])
-installDerivedHeaders = env.Install('$PREFIX/include/derived', derivedHeaders)
-env.Alias('install-dev', installDerivedHeaders)
+env = env.Clone()
 
-derivedLib = env.SharedLibrary(
+env.Install(
+    target='include/derived',
+    source=[
+        'derived.h',
+    ],
+    INSTALL_TAGS=[
+        'dev',
+    ]
+)
+
+env.SharedLibrary(
     target='derived',
     source=[
         'derived.cpp',

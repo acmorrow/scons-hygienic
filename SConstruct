@@ -1,4 +1,4 @@
-EnsureSConsVersion( 2, 3, 0 )
+EnsureSConsVersion(2, 5, 1)
 
 env_vars = Variables()
 
@@ -10,8 +10,12 @@ env_vars.Add('VARIANT_DIR',
     default='variant'
 )
 
-env_vars.Add('PREFIX',
+env_vars.Add('TMP_PREFIX',
     default='$BUILD_DIR/install'
+)
+
+env_vars.Add('PREFIX',
+    default="$TMP_PREFIX"
 )
 
 env_vars.Add('CC')
@@ -36,12 +40,9 @@ env.SConscript(
         'src'
     ],
     variant_dir=env.subst('$BUILD_DIR/$VARIANT_DIR'),
-    exports={
-        'env' : env
-    }
+    exports=[
+        'env'
+    ],
 )
 
-env.Alias('install', ['install-dev', 'install-runtime'])
-env.Default('install')
-
-env.NoCache(FindInstalledFiles())
+env.FinalizeInstallDependencies()

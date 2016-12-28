@@ -3,7 +3,7 @@ Import('env')
 env = env.Clone()
 
 env.AppendUnique(
-    LIBPATH=['$PREFIX/lib'],
+    LIBPATH=['$TMP_PREFIX/lib'],
     CPPPATH=['#/src'],
 )
 
@@ -36,18 +36,22 @@ env.SConscript(
         'base',
         'derived',
     ],
-    exports={
-        'env' : env,
-    },
+    exports=[
+        'env'
+    ],
 )
 
-configHeaders = env.File([
-    'config.h'
-])
-installConfigHeaders = env.Install('$PREFIX/include', configHeaders)
-env.Alias('install-dev', installConfigHeaders)
+env.Install(
+    target='include',
+    source=[
+        'config.h'
+    ],
+    INSTALL_TAGS=[
+        'dev',
+    ],
+)
 
-main = env.Program(
+env.Program(
     target='main',
     source=[
         'main.cpp',
@@ -55,5 +59,8 @@ main = env.Program(
     LIBS=[
         'base',
         'derived',
+    ],
+    INSTALL_TAGS=[
+        'default',
     ]
 )
