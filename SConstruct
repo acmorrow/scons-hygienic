@@ -1,4 +1,4 @@
-EnsureSConsVersion(2, 5, 1)
+EnsureSConsVersion(2, 5, 0)
 
 env_vars = Variables()
 
@@ -43,6 +43,7 @@ env.SConscript(
     exports=[
         'env'
     ],
+    duplicate=False,
 )
 
 env.FinalizeInstallDependencies()
