@@ -108,8 +108,7 @@ def generate(env):
 
     def add_emitter(builder):
         base_emitter = builder.emitter
-        new_emitter = SCons.Builder.ListEmitter([base_emitter])
-        new_emitter.append(auto_install_emitter)
+        new_emitter = SCons.Builder.ListEmitter([base_emitter, auto_install_emitter])
         builder.emitter = new_emitter
 
     target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'Library']

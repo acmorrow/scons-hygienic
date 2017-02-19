@@ -1,6 +1,17 @@
+import shlex
+
 EnsureSConsVersion(2, 5, 0)
 
 env_vars = Variables()
+
+# Setup the command-line variables
+def variable_shlex_converter(val):
+    print(val)
+    # If the argument is something other than a string, propogate
+    # it literally.
+    if not isinstance(val, basestring):
+        return val
+    return shlex.split(val, posix=True)
 
 env_vars.Add('BUILD_DIR',
     default='#build'
@@ -20,10 +31,11 @@ env_vars.Add('PREFIX',
 
 env_vars.Add('CC')
 env_vars.Add('CXX')
-env_vars.Add('CCFLAGS')
-env_vars.Add('CXXFLAGS')
-env_vars.Add('CPPPATH')
-env_vars.Add('LIBPATH')
+env_vars.Add('CCFLAGS', converter=variable_shlex_converter)
+env_vars.Add('CXXFLAGS', converter=variable_shlex_converter)
+env_vars.Add('CPPPATH', converter=variable_shlex_converter)
+env_vars.Add('LIBPATH', converter=variable_shlex_converter)
+env_vars.Add('LINKFLAGS', converter=variable_shlex_converter)
 
 env = Environment(
     variables=env_vars,
