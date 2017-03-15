@@ -41,6 +41,7 @@ env = Environment(
     variables=env_vars,
 )
 
+env.Tool('link_model')
 env.Tool('auto_install_binaries')
 
 sconsDir = env.Dir(env.subst('$BUILD_DIR/scons'))

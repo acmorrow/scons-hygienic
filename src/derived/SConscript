@@ -12,7 +12,7 @@ env.Install(
     ]
 )
 
-env.SharedLibrary(
+env.Library(
     target='derived',
     source=[
         'derived.cpp',
@@ -21,6 +21,6 @@ env.SharedLibrary(
         'base',
     ],
     CPPDEFINES=[
-         "HYGENIC_DEMO_API_LIBDERIVED",
+         '${_LIBRARY_API_CPPDEFINES("DERIVED")}',
     ],
 )

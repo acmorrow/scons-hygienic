@@ -12,12 +12,12 @@ env.Install(
     ],
 )
 
-env.SharedLibrary(
+env.Library(
     target='base',
     source=[
         'base.cpp',
     ],
     CPPDEFINES=[
-        "HYGENIC_DEMO_API_LIBBASE",
+        '${_LIBRARY_API_CPPDEFINES("BASE")}',
     ],
 )

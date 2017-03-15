@@ -26,6 +26,8 @@ if not 'MSVC_VERSION' in env:
     env.AppendUnique(
         CXXFLAGS=[
             '-std=c++11',
+        ],
+        SHCXXFLAGS=[
             '-fvisibility=hidden',
             '-fvisibility-inlines-hidden',
         ],

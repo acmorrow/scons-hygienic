@@ -46,6 +46,7 @@ def generate(env):
         prefix = env.Dir('$PREFIX')
 
         if prefix == tmpPrefix:
+            env.Default('install')
             return
 
         prefixFiles = [f for f in installedFiles if f.abspath.startswith(prefix.abspath)]
@@ -111,6 +112,6 @@ def generate(env):
         new_emitter = SCons.Builder.ListEmitter([base_emitter, auto_install_emitter])
         builder.emitter = new_emitter
 
-    target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'Library']
+    target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']
     for builder in target_builders:
         add_emitter(env['BUILDERS'][builder])
