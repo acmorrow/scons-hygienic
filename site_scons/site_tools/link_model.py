@@ -24,8 +24,25 @@ def generate(env):
     if SCons.Script.GetOption('link-model') == 'static':
         env['BUILDERS']['Library'] = env['BUILDERS']['StaticLibrary']
         env['_LIBRARY_API_CPPDEFINES'] = _static_export_define_generator
-        env['LIBLINKSUFFIX'] = "-static"
-        env['LIBSUFFIX'] = env['LIBLINKSUFFIX'] + env['LIBSUFFIX']
     else:
         env['BUILDERS']['Library'] = env['BUILDERS']['SharedLibrary']
         env['_LIBRARY_API_CPPDEFINES'] = _dynamic_export_define_generator
+
+    def lib_emitter(target, source, env):
+        libs = env.get('LIBS', [])
+        newlibs = []
+        builder = env['BUILDERS']['Library']
+        for lib in libs:
+            newlib = SCons.Util.adjustixes(lib, builder.get_prefix(env), builder.get_suffix(env))
+            newlibs.append(env.File(newlib))
+        env['LIBS'] = newlibs
+        return target, source
+
+    def add_emitter(builder):
+        base_emitter = builder.emitter
+        new_emitter = SCons.Builder.ListEmitter([base_emitter, lib_emitter])
+        builder.emitter = new_emitter
+
+    target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']
+    for builder in target_builders:
+        add_emitter(env['BUILDERS'][builder])

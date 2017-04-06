@@ -3,7 +3,6 @@ Import('env')
 env = env.Clone()
 
 env.AppendUnique(
-    LIBPATH=['$TMP_PREFIX/lib'],
     CPPPATH=['#/src'],
 )
 
@@ -59,8 +58,8 @@ env.Program(
         'main.cpp',
     ],
     LIBS=[
-        'base',
-        'derived',
+        '$BUILD_DIR/$VARIANT_DIR/derived/derived',
+        '$BUILD_DIR/$VARIANT_DIR/base/base',
     ],
     INSTALL_TAGS=[
         'default',

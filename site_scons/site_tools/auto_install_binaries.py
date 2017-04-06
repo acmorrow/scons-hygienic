@@ -7,50 +7,39 @@ def exists(env):
 
 def generate(env):
 
-    base_install = env.Install
-
     def tag_install(env, target, source, **kwargs):
 
-        tmpPrefixDir = env.Dir('$TMP_PREFIX')
         prefixDir = env.Dir('$PREFIX')
 
-        tmp_actions = base_install(
-            target=tmpPrefixDir.Dir(target),
+        actions = SCons.Script.Install(
+            target=prefixDir.Dir(target),
             source=source,
         )
 
-        actions = tmp_actions
-        if (tmpPrefixDir != prefixDir):
-            actions = base_install(
-                target=prefixDir.Dir(target),
-                source=tmp_actions,
-            )
-
         tags = kwargs.get('INSTALL_TAGS')
         for tag in tags:
-            env.Alias('preinstall-' + tag, tmp_actions)
             env.Alias('install-' + tag, actions)
+            env.Alias('preinstall-' + tag, source)
             if tag == "default":
-                env.Alias('preinstall', tmp_actions)
                 env.Alias('install', actions)
-        env.Alias('preinstall-all', tmp_actions)
-        env.Alias('install-all', actions)
+                env.Alias('preinstall', source)
+                env.Default('install')
 
+        env.Alias('install-all', actions)
+        env.Alias('preinstall-all', source)
 
     def finalize_install_dependencies(env):
+
+
 
         installedFiles = env.FindInstalledFiles()
         env.NoCache(installedFiles)
 
-        tmpPrefix = env.Dir('$TMP_PREFIX')
-        prefix = env.Dir('$PREFIX')
+        def source_is_runtime(t):
+            return 'runtime' in t.sources[0].get_env().get('INSTALL_TAGS', [])
+        installedFiles = filter(source_is_runtime, installedFiles)
 
-        if prefix == tmpPrefix:
-            env.Default('install')
-            return
-
-        prefixFiles = [f for f in installedFiles if f.abspath.startswith(prefix.abspath)]
-        prefixPairs = itertools.permutations(prefixFiles, 2)
+        prefixPairs = itertools.permutations(installedFiles, 2)
 
         transitive_cache=dict()
 
@@ -72,16 +61,14 @@ def generate(env):
             return False
 
         def exists_transitive_dependency(fromsource, tosource):
-            fromsource = env.Flatten([fromsource])
-            tosource = env.Flatten([tosource])
             # TODO: Need to verify only one source
-            return do_exists_transitive_dependency(fromsource[0], tosource[0])
+            fromsource = env.Flatten([fromsource])[0]
+            tosource = env.Flatten([tosource])[0]
+            return do_exists_transitive_dependency(fromsource, tosource)
 
         for pair in prefixPairs:
             if exists_transitive_dependency(pair[0].sources, pair[1].sources):
                 env.Depends(pair[0], pair[1])
-
-        env.Default('preinstall')
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
     env.AddMethod(tag_install, 'Install')
@@ -104,6 +91,7 @@ def generate(env):
             if auto_install_location:
                 target_install_tags = env.get('INSTALL_TAGS', [])
                 target_install_tags.extend(auto_install_location[1])
+                env['INSTALL_TAGS'] = target_install_tags
                 env.Install(auto_install_location[0], t, INSTALL_TAGS=target_install_tags)
         return (target, source)
 

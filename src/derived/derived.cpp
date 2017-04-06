@@ -5,5 +5,5 @@
 Derived::Derived() = default;
 
 void Derived::_doIt() {
-    std::printf("Doing it in Derived\n");
+    std::printf("Doing  it in Derived\n");
 }

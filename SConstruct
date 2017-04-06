@@ -1,5 +1,7 @@
 import shlex
 
+DefaultEnvironment(tools=[])
+
 EnsureSConsVersion(2, 5, 0)
 
 env_vars = Variables()
@@ -21,12 +23,8 @@ env_vars.Add('VARIANT_DIR',
     default='variant'
 )
 
-env_vars.Add('TMP_PREFIX',
-    default='$BUILD_DIR/install'
-)
-
 env_vars.Add('PREFIX',
-    default="$TMP_PREFIX"
+    default='$BUILD_DIR/install'
 )
 
 env_vars.Add('CC')
