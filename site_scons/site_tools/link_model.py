@@ -28,6 +28,36 @@ def generate(env):
         env['BUILDERS']['Library'] = env['BUILDERS']['SharedLibrary']
         env['_LIBRARY_API_CPPDEFINES'] = _dynamic_export_define_generator
 
+    if env['PLATFORM'] == 'posix':
+        env.AppendUnique(
+            RPATH=[
+                env.Literal('\\$$ORIGIN/../lib')
+            ],
+            LINKFLAGS=[
+                '-Wl,-z,origin'
+            ],
+            SHLINKFLAGS=[
+                "-Wl,-soname=${TARGET.file}",
+            ]
+        )
+    elif env['PLATFORM'] == 'darwin':
+        env.AppendUnique(
+            LINKFLAGS=[
+                '-Wl,-rpath,@loader_path/../lib'
+            ],
+            SHLINKFLAGS=[
+                "-Wl,-install_name,@loader_path/../lib/${TARGET.file}",
+            ],
+        )
+
+    if not 'MSVC_VERSION' in env:
+        env.AppendUnique(
+            SHCXXFLAGS=[
+                '-fvisibility=hidden',
+                '-fvisibility-inlines-hidden',
+            ],
+        )
+
     def lib_emitter(target, source, env):
         libs = env.get('LIBS', [])
         newlibs = []

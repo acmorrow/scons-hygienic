@@ -6,29 +6,10 @@ env.AppendUnique(
     CPPPATH=['#/src'],
 )
 
-if env['PLATFORM'] == 'posix':
-    env.AppendUnique(
-        RPATH=[env.Literal('\\$$ORIGIN/../lib')],
-        LINKFLAGS=['-Wl,-z,origin'],
-    )
-elif env['PLATFORM'] == 'darwin':
-    env.AppendUnique(
-        LINKFLAGS=[
-            '-Wl,-rpath,@loader_path/../lib'
-        ],
-        SHLINKFLAGS=[
-            "-Wl,-install_name,@loader_path/../lib/${TARGET.file}",
-        ],
-    )
-
 if not 'MSVC_VERSION' in env:
     env.AppendUnique(
         CXXFLAGS=[
             '-std=c++11',
-        ],
-        SHCXXFLAGS=[
-            '-fvisibility=hidden',
-            '-fvisibility-inlines-hidden',
         ],
     )
 
