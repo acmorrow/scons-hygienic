@@ -37,7 +37,8 @@ def generate(env):
                 '-Wl,-z,origin'
             ],
             SHLINKFLAGS=[
-                "-Wl,-soname=${TARGET.file}",
+                # -h works for both the sun linker and the gnu linker.
+                "-Wl,-h,${TARGET.file}",
             ]
         )
     elif env['PLATFORM'] == 'darwin':
