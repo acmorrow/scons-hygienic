@@ -7,11 +7,27 @@ def generate(env):
 
     SCons.Script.AddOption('--link-model', dest='link-model', type='choice', choices=['static', 'dynamic'], default='dynamic')
 
-    if SCons.Script.GetOption('link-model') == 'static':
+    link_model = SCons.Script.GetOption('link-model')
+
+    # In all windows builds, and static non-windows builds, we want to
+    # put .a or .lib on the end of libraries. In dynamic mode on
+    # non-windows, we want to use SHLIBSUFFIX.
+    env['LINK_MODEL_LIBSUFFIX'] = '$LIBSUFFIX'
+
+    if link_model == 'static':
         env['BUILDERS']['Library'] = env['BUILDERS']['StaticLibrary']
         env.AppendUnique(CPPDEFINES=['HYGENIC_DEMO_STATIC'])
+
+        # In static mode on Windows, prefix static libraries with
+        # 'lib' to differentiate them from a DLL import library.
+        if env['PLATFORM'] == 'windows':
+            env['LIBPREFIX'] = 'lib'
     else:
         env['BUILDERS']['Library'] = env['BUILDERS']['SharedLibrary']
+
+        # In dynamic mode on non-Windows, we want the shared librray suffix.
+        if not env['PLATFORM'] == 'windows':
+            env['LINK_MODEL_LIBSUFFIX'] = '$SHLIBSUFFIX'
 
     if env['PLATFORM'] == 'posix':
         env.AppendUnique(
@@ -49,7 +65,7 @@ def generate(env):
         newlibs = []
         builder = env['BUILDERS']['Library']
         for lib in libs:
-            newlib = SCons.Util.adjustixes(lib, builder.get_prefix(env), builder.get_suffix(env))
+            newlib = SCons.Util.adjustixes(lib, env.subst('$LIBPREFIX'), env.subst('$LINK_MODEL_LIBSUFFIX'))
             newlibs.append(env.File(newlib))
         env['LIBS'] = newlibs
         return target, source
