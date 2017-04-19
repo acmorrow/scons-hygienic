@@ -7,6 +7,14 @@ def exists(env):
 
 def generate(env):
 
+    suffix_map = {
+        env.subst('$PROGSUFFIX') : ('bin', ['runtime',]),
+        env.subst('$LIBSUFFIX') : ('lib', ['dev',]),
+        '.dll' :   ('bin', ['runtime',]),
+        '.dylib' : ('lib', ['runtime', 'dev',]),
+        '.so' :    ('lib', ['runtime', 'dev',]),
+    }
+
     def tag_install(env, target, source, **kwargs):
 
         prefixDir = env.Dir('$PREFIX')
@@ -16,7 +24,8 @@ def generate(env):
             source=source,
         )
 
-        tags = kwargs.get('INSTALL_TAGS')
+        tags = kwargs.get('INSTALL_TAGS', [])
+
         for tag in tags:
             env.Alias('install-' + tag, actions)
             env.Alias('preinstall-' + tag, source)
@@ -30,17 +39,15 @@ def generate(env):
 
     def finalize_install_dependencies(env):
 
-
-
         installedFiles = env.FindInstalledFiles()
         env.NoCache(installedFiles)
 
         def source_is_runtime(t):
-            return 'runtime' in t.sources[0].get_env().get('INSTALL_TAGS', [])
+            assert(len(t.sources) == 1)
+            return 'runtime' in getattr(env.File(t.sources[0]).attributes, 'INSTALL_TAGS', [])
         installedFiles = filter(source_is_runtime, installedFiles)
 
         prefixPairs = itertools.permutations(installedFiles, 2)
-
         transitive_cache=dict()
 
         def do_exists_transitive_dependency(f, t):
@@ -61,7 +68,8 @@ def generate(env):
             return False
 
         def exists_transitive_dependency(fromsource, tosource):
-            # TODO: Need to verify only one source
+            assert(len(fromsource) == 1)
+            assert(len(tosource) == 1)
             fromsource = env.Flatten([fromsource])[0]
             tosource = env.Flatten([tosource])[0]
             return do_exists_transitive_dependency(fromsource, tosource)
@@ -75,24 +83,15 @@ def generate(env):
 
     def auto_install_emitter(target, source, env):
 
-        suffix_map = {
-            '' :       ('bin', ['runtime',]),
-            '.a' :     ('lib', ['dev',]),
-            '.dll' :   ('bin', ['runtime',]),
-            '.dylib' : ('lib', ['runtime', 'dev',]),
-            '.exe' :   ('bin', ['runtime',]),
-            '.lib' :   ('lib', ['dev',]),
-            '.so' :    ('lib', ['runtime', 'dev',]),
-        }
-
         for t in target:
-            tsuf = env.Entry(t).get_suffix()
+            tentry = env.Entry(t)
+            tsuf = tentry.get_suffix()
             auto_install_location = suffix_map.get(tsuf)
             if auto_install_location:
-                target_install_tags = env.get('INSTALL_TAGS', [])
-                target_install_tags.extend(auto_install_location[1])
-                env['INSTALL_TAGS'] = target_install_tags
-                env.Install(auto_install_location[0], t, INSTALL_TAGS=target_install_tags)
+                tentry_install_tags = env.get('INSTALL_TAGS', [])
+                tentry_install_tags.extend(auto_install_location[1])
+                setattr(tentry.attributes, 'INSTALL_TAGS', tentry_install_tags)
+                env.Install(auto_install_location[0], tentry, INSTALL_TAGS=tentry_install_tags)
         return (target, source)
 
     def add_emitter(builder):
