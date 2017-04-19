@@ -20,13 +20,13 @@ def generate(env):
 
         # In static mode on Windows, prefix static libraries with
         # 'lib' to differentiate them from a DLL import library.
-        if env['PLATFORM'] == 'windows':
+        if env['PLATFORM'] == 'win32':
             env['LIBPREFIX'] = 'lib'
     else:
         env['BUILDERS']['Library'] = env['BUILDERS']['SharedLibrary']
 
         # In dynamic mode on non-Windows, we want the shared librray suffix.
-        if not env['PLATFORM'] == 'windows':
+        if not env['PLATFORM'] == 'win32':
             env['LINK_MODEL_LIBSUFFIX'] = '$SHLIBSUFFIX'
 
     if env['PLATFORM'] == 'posix':
