@@ -19,5 +19,6 @@ env.Library(
     ],
     LIBS=[
         '$BUILD_DIR/$VARIANT_DIR/base/base',
+        '$BUILD_DIR/$VARIANT_DIR/impl/impl',
     ],
 )

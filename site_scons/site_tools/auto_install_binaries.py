@@ -48,7 +48,7 @@ def generate(env):
         installedFiles = filter(source_is_runtime, installedFiles)
 
         prefixPairs = itertools.permutations(installedFiles, 2)
-        transitive_cache=dict()
+        transitive_cache = dict()
 
         def do_exists_transitive_dependency(f, t):
             cached = transitive_cache.get((f, t))
@@ -59,11 +59,6 @@ def generate(env):
                 transitive_cache[(f, t)] = True
                 transitive_cache[(t, f)] = False
                 return True
-            for child in f_children:
-                if do_exists_transitive_dependency(child, t):
-                    transitive_cache[(f, t)] = True
-                    transitive_cache[(t, f)] = False
-                    return True
             transitive_cache[(f, t)] = False
             return False
 

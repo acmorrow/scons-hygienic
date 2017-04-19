@@ -1,9 +1,9 @@
 #include "derived/derived.h"
 
-#include <cstdio>
+#include "impl/impl.h"
 
 Derived::Derived() = default;
 
 void Derived::_doIt() {
-    std::printf("Doing  it in Derived\n");
+    return impl::doIt();
 }

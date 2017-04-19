@@ -63,7 +63,6 @@ def generate(env):
     def libs_expansion_emitter(target, source, env):
         libs = env.get('LIBS', [])
         newlibs = []
-        builder = env['BUILDERS']['Library']
         for lib in libs:
             newlib = SCons.Util.adjustixes(lib, env.subst('$LIBPREFIX'), env.subst('$LINK_MODEL_LIBSUFFIX'))
             newlibs.append(env.File(newlib))
