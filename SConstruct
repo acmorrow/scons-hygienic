@@ -8,7 +8,6 @@ env_vars = Variables()
 
 # Setup the command-line variables
 def variable_shlex_converter(val):
-    print(val)
     # If the argument is something other than a string, propogate
     # it literally.
     if not isinstance(val, basestring):

@@ -1,19 +1,5 @@
 import SCons
 
-class _dynamic_export_define_generator(object):
-    def __init__(self, arg):
-        self.arg = arg
-
-    def __call__(self, target, source, env, for_signature):
-        return "HYGENIC_DEMO_API_LIB" + self.arg
-
-class _static_export_define_generator(object):
-    def __init__(self, arg):
-        self.arg = arg
-
-    def __call__(self, target, source, env, for_signature):
-        return "HYGENIC_DEMO_STATIC_LIB" + self.arg
-
 def exists(env):
     return True
 
@@ -23,10 +9,9 @@ def generate(env):
 
     if SCons.Script.GetOption('link-model') == 'static':
         env['BUILDERS']['Library'] = env['BUILDERS']['StaticLibrary']
-        env['_LIBRARY_API_CPPDEFINES'] = _static_export_define_generator
+        env.AppendUnique(CPPDEFINES=['HYGENIC_DEMO_STATIC'])
     else:
         env['BUILDERS']['Library'] = env['BUILDERS']['SharedLibrary']
-        env['_LIBRARY_API_CPPDEFINES'] = _dynamic_export_define_generator
 
     if env['PLATFORM'] == 'posix':
         env.AppendUnique(
@@ -59,7 +44,7 @@ def generate(env):
             ],
         )
 
-    def lib_emitter(target, source, env):
+    def libs_expansion_emitter(target, source, env):
         libs = env.get('LIBS', [])
         newlibs = []
         builder = env['BUILDERS']['Library']
@@ -69,11 +54,18 @@ def generate(env):
         env['LIBS'] = newlibs
         return target, source
 
-    def add_emitter(builder):
+    def sharedlib_generation_emitter(target, source, env):
+        targetbase = str(target[0].get_subst_proxy().filebase).upper()
+        env.AppendUnique(CPPDEFINES=['HYGENIC_DEMO_API_' + targetbase])
+        return target, source
+
+    def add_emitter(builder, emitter):
         base_emitter = builder.emitter
-        new_emitter = SCons.Builder.ListEmitter([base_emitter, lib_emitter])
+        new_emitter = SCons.Builder.ListEmitter([base_emitter, emitter])
         builder.emitter = new_emitter
 
-    target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']
-    for builder in target_builders:
-        add_emitter(env['BUILDERS'][builder])
+    for builder in ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']:
+        add_emitter(env['BUILDERS'][builder], libs_expansion_emitter)
+
+    for builder in ['SharedLibrary', 'LoadableModule']:
+        add_emitter(env['BUILDERS'][builder], sharedlib_generation_emitter)

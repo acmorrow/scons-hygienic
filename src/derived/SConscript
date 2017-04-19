@@ -20,7 +20,4 @@ env.Library(
     LIBS=[
         '$BUILD_DIR/$VARIANT_DIR/base/base',
     ],
-    CPPDEFINES=[
-         '${_LIBRARY_API_CPPDEFINES("DERIVED")}',
-    ],
 )
