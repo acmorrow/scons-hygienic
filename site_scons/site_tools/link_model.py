@@ -55,7 +55,10 @@ def generate(env):
         return target, source
 
     def sharedlib_generation_emitter(target, source, env):
-        targetbase = str(target[0].get_subst_proxy().filebase).upper()
+        targetbase = str(target[0].get_subst_proxy().filebase)
+        if not targetbase.startswith('lib'):
+            targetbase = 'lib' + targetbase
+        targetbase = targetbase.upper()
         env.AppendUnique(CPPDEFINES=['HYGENIC_DEMO_API_' + targetbase])
         return target, source
 
