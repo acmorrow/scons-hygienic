@@ -54,11 +54,12 @@ def generate(env):
             cached = transitive_cache.get((f, t))
             if cached is not None:
                 return cached
-            f_children = f.children()
-            if t in f_children:
-                transitive_cache[(f, t)] = True
-                transitive_cache[(t, f)] = False
-                return True
+
+            for f in f.children():
+                if t in f.get_executor().get_all_targets():
+                    transitive_cache[(f, t)] = True
+                    transitive_cache[(t, f)] = False
+                    return True
             transitive_cache[(f, t)] = False
             return False
 
