@@ -40,8 +40,9 @@ env.Program(
         'main.cpp',
     ],
     LIBS=[
-        '$BUILD_DIR/$VARIANT_DIR/derived/derived',
         '$BUILD_DIR/$VARIANT_DIR/base/base',
+        '$BUILD_DIR/$VARIANT_DIR/derived/derived',
+        '$BUILD_DIR/$VARIANT_DIR/impl/impl',
     ],
     INSTALL_TAGS=[
         'default',
