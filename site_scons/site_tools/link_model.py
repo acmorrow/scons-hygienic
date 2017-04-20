@@ -35,7 +35,8 @@ def generate(env):
                 env.Literal('\\$$ORIGIN/../lib')
             ],
             LINKFLAGS=[
-                '-Wl,-z,origin'
+                '-Wl,-z,origin',
+                '-Wl,--enable-new-dtags',
             ],
             SHLINKFLAGS=[
                 # -h works for both the sun linker and the gnu linker.
