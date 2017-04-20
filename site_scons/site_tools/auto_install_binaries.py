@@ -32,7 +32,7 @@ def generate(env):
             if tag == "default":
                 env.Alias('install', actions)
                 env.Alias('preinstall', source)
-                env.Default('install')
+                env.Default('preinstall')
 
         env.Alias('install-all', actions)
         env.Alias('preinstall-all', source)
