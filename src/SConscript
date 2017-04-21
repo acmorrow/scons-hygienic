@@ -35,9 +35,9 @@ env.Install(
 )
 
 env.Program(
-    target='main',
+    target='server',
     source=[
-        'main.cpp',
+        'server.cpp',
     ],
     LIBS=[
         '$BUILD_DIR/$VARIANT_DIR/base/base',
@@ -46,5 +46,24 @@ env.Program(
     ],
     INSTALL_TAGS=[
         'default',
+        'servers',
+        'core',
+    ]
+)
+
+env.Program(
+    target='client',
+    source=[
+        'client.cpp',
+    ],
+    LIBS=[
+        '$BUILD_DIR/$VARIANT_DIR/base/base',
+        '$BUILD_DIR/$VARIANT_DIR/derived/derived',
+        '$BUILD_DIR/$VARIANT_DIR/impl/impl',
+    ],
+    INSTALL_TAGS=[
+        'default',
+        'clients',
+        'core',
     ]
 )
