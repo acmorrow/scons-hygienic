@@ -17,4 +17,8 @@ env.Library(
     source=[
         'base.cpp',
     ],
+    CPPDEFINES=[
+        'HYGENIC_DEMO_API_LIBBASE',
+        '$CPPDEFINES',
+    ],
 )

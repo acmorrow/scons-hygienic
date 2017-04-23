@@ -70,14 +70,6 @@ def generate(env):
         env['LIBS'] = newlibs
         return target, source
 
-    def sharedlib_generation_emitter(target, source, env):
-        targetbase = str(target[0].get_subst_proxy().filebase)
-        if not targetbase.startswith('lib'):
-            targetbase = 'lib' + targetbase
-        targetbase = targetbase.upper()
-        env.AppendUnique(CPPDEFINES=['HYGENIC_DEMO_API_' + targetbase])
-        return target, source
-
     def add_emitter(builder, emitter):
         base_emitter = builder.emitter
         new_emitter = SCons.Builder.ListEmitter([base_emitter, emitter])
@@ -85,6 +77,3 @@ def generate(env):
 
     for builder in ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']:
         add_emitter(env['BUILDERS'][builder], libs_expansion_emitter)
-
-    for builder in ['SharedLibrary', 'LoadableModule']:
-        add_emitter(env['BUILDERS'][builder], sharedlib_generation_emitter)

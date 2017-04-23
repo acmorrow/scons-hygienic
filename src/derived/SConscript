@@ -21,4 +21,8 @@ env.Library(
         '$BUILD_DIR/$VARIANT_DIR/base/base',
         '$BUILD_DIR/$VARIANT_DIR/impl/impl',
     ],
+    CPPDEFINES=[
+        'HYGENIC_DEMO_API_LIBDERIVED',
+        '$CPPDEFINES',
+    ],
 )
