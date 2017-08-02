@@ -4,6 +4,8 @@ DefaultEnvironment(tools=[])
 
 EnsureSConsVersion(2, 5, 0)
 
+SetOption('random', 1)
+
 env_vars = Variables()
 
 # Setup the command-line variables
