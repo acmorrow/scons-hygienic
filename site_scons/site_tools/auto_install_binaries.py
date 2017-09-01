@@ -72,7 +72,7 @@ def generate(env):
 
         for pair in prefixPairs:
             if exists_transitive_dependency(pair[0].sources, pair[1].sources):
-                env.Depends(pair[0], pair[1])
+                env.Requires(pair[0], pair[1])
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
     env.AddMethod(tag_install, 'Install')
