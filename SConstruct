@@ -47,6 +47,10 @@ sconsDir = env.Dir(env.subst('$BUILD_DIR/scons'))
 env.SConsignFile(str(sconsDir.File('signatures')))
 env.CacheDir(str(sconsDir.Dir('cache')))
 
+conf = Configure(env, help=False);
+if not conf.CheckCXX():
+    env.ConfError("C++ compiler doesn't work")
+
 env.SConscript(
     dirs=[
         'src'
