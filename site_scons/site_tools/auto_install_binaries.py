@@ -1,11 +1,53 @@
+import datetime
 import itertools
+
+# TODO: implement sdk_headers
+# TODO: Namedtuple for alias_map
+# TODO: move keep_targetinfo to tag_install
+# TODO: Add test tag automatically for unit tests, etc.
+# TODO: Test tag still leaves things in the runtime component
+# TODO: library dependency chaining for windows dynamic builds, static dev packages
+# TODO: Separate debug info (different tool?)
+# TODO: How should debug info work for tests?
+# TODO: Handle chmod state
+# TODO: tarfile generation
+# TODO: Injectible component dependencies (jscore -> resmoke, etc.)
+# TODO: Installing resmoke and configurations
+# TODO: Distfiles and equivalent for the dist target
+# TODO: package decomposition
+# TODO: Install/package target help text
+
+from collections import defaultdict
 
 import SCons
 
 def exists(env):
-    True
+    return True
 
 def generate(env):
+
+    role_tags = set([
+        'common',
+        'debug',
+        'dev',
+        'meta',
+        'runtime',
+    ])
+
+    role_dependencies = {
+        'dev' : ['runtime', 'common'],
+        'meta' : ['dev', 'runtime', 'common', 'debug'],
+        'debug' : ['runtime'],
+        'runtime' : ['common'],
+    }
+
+    predefined_component_tags = set([
+        'all',
+        'base',
+        'default',
+    ])
+
+    env.Tool('install')
 
     suffix_map = {
         env.subst('$PROGSUFFIX') : ('bin', ['runtime',]),
@@ -15,72 +57,74 @@ def generate(env):
         '.so' :    ('lib', ['runtime', 'dev',]),
     }
 
-    def tag_install(env, target, source, **kwargs):
+    alias_map = defaultdict(dict)
 
+    def tag_install(env, target, source, **kwargs):
         prefixDir = env.Dir('$PREFIX')
 
+        actions = []
+        targetDir = prefixDir.Dir(target)
         actions = SCons.Script.Install(
-            target=prefixDir.Dir(target),
+            target=targetDir,
             source=source,
         )
+        for s in map(env.Entry, env.Flatten(source)):
+            setattr(s.attributes, "aib_install_actions", actions)
 
-        tags = kwargs.get('INSTALL_TAGS', [])
+        tags = set(kwargs.get('INSTALL_TAGS', []))
 
-        for tag in tags:
-            env.Alias('install-' + tag, actions)
-            env.Alias('preinstall-' + tag, source)
-            if tag == "default":
-                env.Alias('install', actions)
-                env.Alias('preinstall', source)
-                env.Default('preinstall')
+        applied_role_tags = role_tags.intersection(tags)
+        applied_component_tags = tags - applied_role_tags
 
-        env.Alias('install-all', actions)
-        env.Alias('preinstall-all', source)
+        # The 'all' tag is implicitly attached as a component, and the
+        # 'meta' tag is implicitly attached as a role.
+        applied_role_tags.add("meta")
+        applied_component_tags.add("all")
+
+        for component_tag, role_tag in itertools.product(applied_component_tags, applied_role_tags):
+            alias_name = 'install-' + component_tag
+            alias_name = alias_name + ("" if role_tag == "runtime" else "-" + role_tag)
+            prealias_name = 'pre' + alias_name
+            alias = env.Alias(alias_name, actions)
+            prealias = env.Alias(prealias_name, source)
+            alias_map[component_tag][role_tag] = (alias_name, alias, prealias_name, prealias)
+
+        return actions
 
     def finalize_install_dependencies(env):
+        base_rolemap = alias_map.get('base', None)
+        default_rolemap = alias_map.get('default', None)
+
+        if default_rolemap and 'runtime' in default_rolemap:
+            env.Alias('install', 'install-default')
+            env.Default('install')
+
+        for component, rolemap in alias_map.iteritems():
+            for role, info in rolemap.iteritems():
+
+                if base_rolemap and component != 'base' and role in base_rolemap:
+                    env.Depends(info[1], base_rolemap[role][1])
+                    env.Depends(info[3], base_rolemap[role][3])
+
+                for dependency in role_dependencies.get(role, []):
+                    dependency_info = rolemap.get(dependency, [])
+                    if dependency_info:
+                        env.Depends(info[1], dependency_info[1])
+                        env.Depends(info[3], dependency_info[3])
 
         installedFiles = env.FindInstalledFiles()
         env.NoCache(installedFiles)
-
-        def source_is_runtime(t):
-            assert(len(t.sources) == 1)
-            return 'runtime' in getattr(env.File(t.sources[0]).attributes, 'INSTALL_TAGS', [])
-        installedFiles = filter(source_is_runtime, installedFiles)
-
-        prefixPairs = itertools.permutations(installedFiles, 2)
-        transitive_cache = dict()
-
-        def do_exists_transitive_dependency(f, t):
-            cached = transitive_cache.get((f, t))
-            if cached is not None:
-                return cached
-
-            for f in f.children():
-                if t in f.get_executor().get_all_targets():
-                    transitive_cache[(f, t)] = True
-                    transitive_cache[(t, f)] = False
-                    return True
-            transitive_cache[(f, t)] = False
-            return False
-
-        def exists_transitive_dependency(fromsource, tosource):
-            assert(len(fromsource) == 1)
-            assert(len(tosource) == 1)
-            fromsource = env.Flatten([fromsource])[0]
-            tosource = env.Flatten([tosource])[0]
-            return do_exists_transitive_dependency(fromsource, tosource)
-
-        for pair in prefixPairs:
-            if exists_transitive_dependency(pair[0].sources, pair[1].sources):
-                env.Requires(pair[0], pair[1])
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
     env.AddMethod(tag_install, 'Install')
 
     def auto_install_emitter(target, source, env):
-
         for t in target:
             tentry = env.Entry(t)
+            # We want to make sure that the executor information stays
+            # persisted for this node after it is built so that we can
+            # access it in our install emitter below.
+            tentry.attributes.keep_targetinfo = 1
             tsuf = tentry.get_suffix()
             auto_install_location = suffix_map.get(tsuf)
             if auto_install_location:
@@ -97,4 +141,29 @@ def generate(env):
 
     target_builders = ['Program', 'SharedLibrary', 'LoadableModule', 'StaticLibrary']
     for builder in target_builders:
-        add_emitter(env['BUILDERS'][builder])
+        builder = env['BUILDERS'][builder]
+        add_emitter(builder)
+
+    def scan_for_transitive_install(node, env, path=()):
+        results = []
+        install_sources = node.sources
+        for install_source in install_sources:
+            is_executor = install_source.get_executor()
+            is_targets = is_executor.get_all_targets()
+            for is_target in is_targets:
+                grandchildren = is_target.children()
+                for grandchild in grandchildren:
+                    actions = getattr(grandchild.attributes, "aib_install_actions", None)
+                    if actions:
+                        results.extend(actions)
+        results = sorted(results, key=lambda t: str(t))
+        return results
+
+    from SCons.Tool import install
+    base_install_builder = install.BaseInstallBuilder
+    assert(base_install_builder.target_scanner == None)
+
+    base_install_builder.target_scanner = SCons.Scanner.Scanner(
+        function=scan_for_transitive_install,
+        path_function=None,
+    )
